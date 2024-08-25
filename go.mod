@@ -8,6 +8,9 @@ require (
 	github.com/goark/fetch v0.4.1 // indirect
 	github.com/goark/pa-api v0.12.6 // indirect
 	github.com/gofiber/fiber/v2 v2.52.5 // indirect
+	github.com/gofiber/jwt/v3 v3.3.10 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect

@@ -1,16 +1,20 @@
 package controllers
 
 import (
+	"app/models"
 	"context"
 	"net/http"
-
-	"app/models"
+	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func LoginUser(c *fiber.Ctx) error {
 	user := struct {
@@ -38,7 +42,19 @@ func LoginUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{"error": "The password is incorrect for the given email."})
 	}
 
-	return c.JSON(user)
+	claims := jwt.MapClaims{
+		"username": foundUser.Username,
+		"email":    foundUser.Email,
+		"exp":      time.Now().Add(time.Hour * 72).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Could not generate a token. Please contact the dev."})
+	}
+
+	return c.JSON(fiber.Map{"user": user, "token": tokenString})
 }
 
 func CheckPassword(password string, hash string) bool {

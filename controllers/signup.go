@@ -8,6 +8,7 @@ import (
 	"app/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -54,7 +55,21 @@ func SignUp(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": insertErr.Error()})
 	}
 
-	return c.Status(http.StatusCreated).JSON(user)
+	claims := jwt.MapClaims{
+		"username": user.Username,
+		"email":    user.Email,
+		"exp":      time.Now().Add(time.Hour * 72).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := token.SignedString(jwtSecret)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Could note generate token."})
+	}
+
+	return c.Status(http.StatusCreated).JSON(fiber.Map{"user": user, "token": tokenString})
 }
 
 func UserDoesNotExist(ctx context.Context, email string) bool {

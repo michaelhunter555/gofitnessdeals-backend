@@ -19,9 +19,13 @@ func main() {
 	controllers.SetUserController(userCollection)
 	controllers.SetUserController(blogCollection)
 
-	app.Use("/user", routes.UserRoutes)
-	app.Use("/blog", routes.BlogRoutes)
-	app.Use("/products", routes.ProductRoutes)
+	userGroup := app.Group("/user")
+	blogGroup := app.Group("/blog")
+	productGroup := app.Group("/products")
+
+	routes.UserRoutes(userGroup)
+	routes.BlogRoutes(blogGroup)
+	routes.ProductRoutes(productGroup)
 
 	log.Fatal(app.Listen(":5000"))
 }
